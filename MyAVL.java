@@ -36,7 +36,7 @@ public class MyAVL<T extends Comparable<T>> implements ICollection<T> {
         } else {
             root.rNode = addHelper(root.rNode, toAdd);
         }
-        return root;
+        return balance(root);
     }
 
     //DEPRECIATED
@@ -90,7 +90,7 @@ public class MyAVL<T extends Comparable<T>> implements ICollection<T> {
                 MyAVLNode child = childHelp(root);
                 root.item = child.item;
                 root.rNode = removeHelper(root.rNode, (T)child.item);
-                return root;
+                return balance(root);
             }
         }
         return root;
@@ -156,5 +156,54 @@ public class MyAVL<T extends Comparable<T>> implements ICollection<T> {
             values.add(root.item);
             treeTravel(root.rNode, values);
         }
+    }
+
+    private MyAVLNode singleRotateLChild (MyAVLNode root){
+        MyAVLNode hold = root.lNode;
+        root.lNode = hold.rNode;
+        hold.rNode = root;
+        root.height = Math.max(root.getLHeight(), root.getRHeight()) + 1;
+        hold.height = Math.max(hold.getLHeight(), root.height) + 1;
+        return hold;
+    }
+
+    private MyAVLNode singleRotateRChild (MyAVLNode root){
+        MyAVLNode hold = root.rNode;
+        root.rNode = hold.lNode;
+        hold.lNode = root;
+        root.height = Math.max(root.getLHeight(), root.getRHeight()) + 1;
+        hold.height = Math.max(hold.getRHeight(), root.height) + 1;
+        return hold;
+    }
+
+    private MyAVLNode doubleRotateLChild (MyAVLNode root){
+        root.lNode = singleRotateRChild(root.lNode);
+        return singleRotateLChild(root);
+    }
+
+    private MyAVLNode doubleRotateRChild (MyAVLNode root){
+        root.rNode = singleRotateLChild(root.rNode);
+        return singleRotateRChild(root);
+    }
+
+    private MyAVLNode balance(MyAVLNode root){
+        if (root == null){
+            return root;
+        }
+        if (root.getLHeight() - root.getRHeight() > 1){
+            if (root.lNode.getLHeight() >= root.lNode.getRHeight()){
+                root = singleRotateLChild(root);
+            } else {
+                root = doubleRotateLChild(root);
+            }
+        } else if (root.getRHeight() - root.getLHeight() > 1) {
+            if (root.rNode.getRHeight() >= root.rNode.getLHeight()) {
+                root = singleRotateRChild(root);
+            } else {
+                root = doubleRotateRChild(root);
+            }
+        }
+        root.height = Math.max(root.getLHeight(), root.getRHeight()) + 1;
+        return root;
     }
 }
